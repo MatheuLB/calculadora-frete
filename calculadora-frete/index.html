@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Conta do Frete</title>
+<meta name="description" content="Calcula quanto sobra de um frete depois do diesel, do motorista (12%) e do pedágio, e compara ofertas.">
+<meta name="theme-color" content="#0e6b3d">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Conta do Frete">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icones/apple-touch-icon.png">
+<link rel="icon" type="image/png" href="icones/icone-192.png">
+<link rel="stylesheet" href="estilo.css">
+</head>
+<body>
+
+<header class="topo">
+  <h1>Conta do Frete</h1>
+  <p class="topo-sub">Quanto sobra depois do diesel, do motorista e do pedágio</p>
+</header>
+
+<div class="aviso-instalar" id="aviso-instalar" hidden>
+  <p>Para instalar no iPhone: toque em <strong>Compartilhar</strong> <span class="icone-compartilhar" aria-hidden="true"></span> e depois em <strong>Adicionar à Tela de Início</strong>.</p>
+  <button type="button" class="botao-fechar" id="fechar-aviso" aria-label="Fechar aviso">×</button>
+</div>
+
+<main>
+
+  <!-- ===== Aba: calcular uma viagem ===== -->
+  <section class="aba" id="aba-calcular" aria-labelledby="tab-calcular">
+    <form id="form-calcular" novalidate autocomplete="off">
+
+      <fieldset class="grupo">
+        <legend>Rota</legend>
+        <div class="campo campo-cidade">
+          <div class="rotulo-com-acao">
+            <label for="atual">Onde o caminhão está</label>
+            <button type="button" class="botao-texto" id="usar-local">Usar minha localização</button>
+          </div>
+          <input id="atual" type="text" placeholder="Ex.: Passo Fundo" enterkeyhint="next" autocapitalize="words" spellcheck="false">
+          <ul class="sugestoes" role="listbox" hidden></ul>
+          <p class="erro" hidden></p>
+        </div>
+        <div class="campo campo-cidade">
+          <label for="pega">Onde pega a carga <span class="opcional">se for em outra cidade</span></label>
+          <input id="pega" type="text" placeholder="Mesma cidade onde está" enterkeyhint="next" autocapitalize="words" spellcheck="false">
+          <ul class="sugestoes" role="listbox" hidden></ul>
+          <p class="erro" hidden></p>
+        </div>
+        <div class="campo campo-cidade">
+          <label for="entrega">Para onde vai a carga</label>
+          <input id="entrega" type="text" placeholder="Ex.: Curitiba" enterkeyhint="next" autocapitalize="words" spellcheck="false">
+          <ul class="sugestoes" role="listbox" hidden></ul>
+          <p class="erro" hidden></p>
+        </div>
+        <label class="marcar" for="volta">
+          <input id="volta" type="checkbox">
+          <span>Somar a volta vazio até a cidade onde está</span>
+        </label>
+      </fieldset>
+
+      <fieldset class="grupo">
+        <legend>Caminhão e diesel</legend>
+        <div class="linha-2">
+          <div class="campo">
+            <label for="media">Média</label>
+            <div class="entrada-unidade">
+              <input id="media" type="text" inputmode="decimal" placeholder="2,5">
+              <span class="unidade">km/l</span>
+            </div>
+            <p class="erro" hidden></p>
+          </div>
+          <div class="campo">
+            <label for="diesel">Diesel</label>
+            <div class="entrada-unidade">
+              <span class="unidade">R$</span>
+              <input id="diesel" type="text" inputmode="decimal" placeholder="6,20">
+              <span class="unidade">/litro</span>
+            </div>
+            <p class="erro" hidden></p>
+          </div>
+        </div>
+      </fieldset>
+
+      <fieldset class="grupo">
+        <legend>Carga</legend>
+        <div class="campo">
+          <label for="frete">Valor do frete</label>
+          <div class="entrada-unidade">
+            <span class="unidade">R$</span>
+            <input id="frete" type="text" inputmode="decimal" placeholder="4.500,00">
+          </div>
+          <p class="erro" hidden></p>
+        </div>
+        <div class="linha-2">
+          <div class="campo">
+            <label for="outros">Pedágio e outros <span class="opcional">opcional</span></label>
+            <div class="entrada-unidade">
+              <span class="unidade">R$</span>
+              <input id="outros" type="text" inputmode="decimal" placeholder="0,00">
+            </div>
+          </div>
+          <div class="campo">
+            <label for="km-manual">Km total <span class="opcional">se já souber</span></label>
+            <div class="entrada-unidade">
+              <input id="km-manual" type="text" inputmode="decimal" placeholder="automático">
+              <span class="unidade">km</span>
+            </div>
+          </div>
+        </div>
+      </fieldset>
+
+      <button type="submit" class="botao-principal" id="botao-calcular">Calcular ganho</button>
+    </form>
+
+    <div id="resultado" aria-live="polite">
+      <div class="vazio">
+        <p class="vazio-titulo">A conta aparece aqui</p>
+        <p>Preencha a rota, a média, o diesel e o valor do frete. O app desconta os 12% do motorista, o diesel e o pedágio e mostra quanto sobra.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== Aba: comparar ofertas ===== -->
+  <section class="aba" id="aba-comparar" aria-labelledby="tab-comparar" hidden>
+    <div class="intro-comparar">
+      <h2>Comparar fretes</h2>
+      <p>Procure cargas na Fretebras e anote aqui as que interessarem. O app faz a conta de cada uma a partir de onde o caminhão está, contando os km vazio até pegar a carga, e mostra a que deixa mais dinheiro.</p>
+      <a class="botao-secundario" href="https://www.fretebras.com.br" target="_blank" rel="noopener">Abrir a Fretebras</a>
+    </div>
+
+    <p class="base-calculo" id="base-calculo"></p>
+
+    <form id="form-oferta" class="grupo" novalidate autocomplete="off">
+      <p class="grupo-titulo">Nova oferta</p>
+      <div class="campo campo-cidade">
+        <label for="oferta-pega">Pega a carga em</label>
+        <input id="oferta-pega" type="text" placeholder="Cidade de carregamento" autocapitalize="words" spellcheck="false">
+        <ul class="sugestoes" role="listbox" hidden></ul>
+        <p class="erro" hidden></p>
+      </div>
+      <div class="campo campo-cidade">
+        <label for="oferta-entrega">Entrega em</label>
+        <input id="oferta-entrega" type="text" placeholder="Cidade de descarga" autocapitalize="words" spellcheck="false">
+        <ul class="sugestoes" role="listbox" hidden></ul>
+        <p class="erro" hidden></p>
+      </div>
+      <div class="linha-2">
+        <div class="campo">
+          <label for="oferta-valor">Valor do frete</label>
+          <div class="entrada-unidade">
+            <span class="unidade">R$</span>
+            <input id="oferta-valor" type="text" inputmode="decimal" placeholder="4.500,00">
+          </div>
+          <p class="erro" hidden></p>
+        </div>
+        <div class="campo">
+          <label for="oferta-outros">Pedágio <span class="opcional">opcional</span></label>
+          <div class="entrada-unidade">
+            <span class="unidade">R$</span>
+            <input id="oferta-outros" type="text" inputmode="decimal" placeholder="0,00">
+          </div>
+        </div>
+      </div>
+      <div class="campo">
+        <label for="oferta-obs">Anotação <span class="opcional">opcional</span></label>
+        <input id="oferta-obs" type="text" placeholder="Ex.: soja, 32 t, carrega amanhã" maxlength="80">
+      </div>
+      <button type="submit" class="botao-principal">Adicionar oferta</button>
+    </form>
+
+    <div class="cabecalho-lista" id="cabecalho-lista" hidden>
+      <div class="ordem" role="group" aria-label="Ordenar ofertas">
+        <button type="button" class="ordem-botao" data-ordem="ganho" aria-pressed="true">Maior ganho</button>
+        <button type="button" class="ordem-botao" data-ordem="porKm" aria-pressed="false">Melhor por km</button>
+      </div>
+      <button type="button" class="botao-texto" id="limpar-ofertas">Apagar todas</button>
+    </div>
+
+    <ol class="ofertas" id="lista-ofertas"></ol>
+    <div class="vazio" id="ofertas-vazio">
+      <p class="vazio-titulo">Nenhuma oferta anotada</p>
+      <p>Adicione duas ou mais cargas para ver qual vale mais a pena. Você também pode guardar uma viagem da aba Calcular.</p>
+    </div>
+  </section>
+
+</main>
+
+<nav class="abas" role="tablist" aria-label="Seções">
+  <button type="button" role="tab" id="tab-calcular" aria-controls="aba-calcular" aria-selected="true">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M8 7h8M8 11h2M12 11h2M16 11h0M8 15h2M12 15h2M8 18h2M12 18h2M16 15v3"/></svg>
+    Calcular
+  </button>
+  <button type="button" role="tab" id="tab-comparar" aria-controls="aba-comparar" aria-selected="false">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>
+    Comparar fretes
+  </button>
+</nav>
+
+<script src="cidades.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
